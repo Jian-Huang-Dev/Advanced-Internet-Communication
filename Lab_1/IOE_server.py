@@ -10,6 +10,7 @@ CMD_QUIT = 'QUIT'
 CMD_CONNECT = 'CONNECT'
 BYTE_LENGH = 32
 ERROR = 'ERROR'
+END_MARKER = '@#'
 
 connection_flag = True
 
@@ -46,16 +47,31 @@ data_base[1].IP_address = '177.68.25.18'
 
 # custom function to receive data from client
 def getData():
-    msg = connection.recv(BYTE_LENGH)
+    part = ''
+    msg = ''
+    while True:
+        part = connection.recv(BYTE_LENGH)
+        # check if the end marker "@#" received or not, if so break the while loop
+        if END_MARKER in part:
+            # append text into the message, but elimate the last two string "@#"
+            msg += part[0:len(part) - 2]
+            break
+        # the end of line is not reached yet, hence keep adding text into the message
+        else:
+            msg += part
     return msg
 
+# custom function to send data with a end marker "@#"
+def sendData(text):
+    connection.sendall(text + END_MARKER)
+    
 # custom function to print all attributes of the specified device
 def printDevice(data_base, index):
     print data_base[index].device_name,',', \
           data_base[index].read_value,',', \
           data_base[index].target_value,',', \
           data_base[index].IP_address 
-
+    
 # custom function to add device into data base
 def funcAdd():
     data_base.append(db_list()) # append an empty list object into data base
@@ -123,7 +139,7 @@ def funcWrite():
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.1.7', 61556)
+server_address = ('192.168.1.2', 61556)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
@@ -145,25 +161,25 @@ while connection_flag: # connection will maintain active unless user quits
             if data == CMD_ADD:
                 num_of_devs += 1 # add one device
                 # send info to client to confirm the device is being added
-                connection.sendall(funcAdd()) 
-	    elif data == CMD_REMOVE:
-		connection.sendall(funcRemove())
-		num_of_devs -= 1 # delete one device
-	    elif data == CMD_READ:
-		info = funcRead()
-		# depend on if the user-entered device is found
-		if info == False:
-                    connection.sendall(ERROR)
+                sendData(funcAdd()) 
+            elif data == CMD_REMOVE:
+                sendData(funcRemove())
+                num_of_devs -= 1 # delete one device
+            elif data == CMD_READ:
+                info = funcRead()
+                # depend on if the user-entered device is found
+                if info == False:
+                    sendData(ERROR) 
                 else:
-                    connection.sendall(info)
-	    elif data == CMD_WRITE:
-		info = funcWrite()
-		# depend on if the user-entered device is found
-		if info == False:
-                    connection.sendall(ERROR)
+                    sendData(info) 
+            elif data == CMD_WRITE:
+                info = funcWrite()
+                # depend on if the user-entered device is found
+                if info == False:
+                    sendData(ERROR) 
                 else:
-                    connection.sendall(info)
-	    elif data == CMD_QUIT:
+                    sendData(info) 
+            elif data == CMD_QUIT:
                 connection_flag = False
                 connection.close()
                 print 'Closed connection'              
