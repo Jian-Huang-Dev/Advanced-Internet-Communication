@@ -10,7 +10,7 @@ CMD_QUIT = 'QUIT'
 CMD_CONNECT = 'CONNECT'
 BYTE_LENGH = 32
 ERROR = 'ERROR'
-END_MARKER = '@#'
+END_MARKER = '@#' # a random symbol to indicate end of line
 
 connection_flag = True
 
@@ -71,7 +71,23 @@ def printDevice(data_base, index):
           data_base[index].read_value,',', \
           data_base[index].target_value,',', \
           data_base[index].IP_address 
-    
+
+# custom function to convert string to integer
+def getInt(string):
+    try:
+        return int(string)
+    except ValueError:
+        print "Oops!  That was no valid number.  Try again..."
+        return False
+        
+# custom function to ask user for port number
+def getPortNum():
+    port_num = False
+    # check if the user entered the port number is in correct format
+    while port_num == False:
+        port_num = getInt(raw_input('Enter port number: '))
+    return port_num
+        
 # custom function to add device into data base
 def funcAdd():
     data_base.append(db_list()) # append an empty list object into data base
@@ -110,9 +126,9 @@ def funcRead():
     for i in range (0, len(data_base)):
         if data_base[i].device_name == dev_name:
             print 'Found device: ' + data_base[i].device_name
+            printDevice(data_base, i)
             print 'Its Read-value is: ', data_base[i].read_value
             print 'Its Target-value is: ', data_base[i].target_value
-            printDevice(data_base, i)
             return str(data_base[i].read_value) + ', ' + str(data_base[i].target_value)
         else:
             if i == len(data_base) - 1: # already reach the end of list
@@ -139,7 +155,8 @@ def funcWrite():
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.1.2', 61556)
+port_num = getPortNum()
+server_address = ('192.168.1.2', port_num)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 

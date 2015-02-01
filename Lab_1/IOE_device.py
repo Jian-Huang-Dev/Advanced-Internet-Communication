@@ -10,6 +10,7 @@ CMD_QUIT = 'QUIT'
 CMD_CONNECT = 'CONNECT'
 BYTE_LENGH = 32
 ERROR = 'ERROR'
+END_MARKER = '@#' # a random symbol to indicate end of line
 
 connection_flag = True
 
@@ -46,6 +47,14 @@ def getData():
             msg += part
     return msg
 
+# custom function to ask user for port number
+def getPortNum():
+    port_num = False
+    # check if the user entered the port number is in correct format
+    while port_num == False:
+        port_num = getInt(raw_input('Enter port number: '))
+    return port_num
+    
 # custom function to send data with a end marker "@#"
 def sendData(text):
     sock.sendall(text + END_MARKER)
@@ -117,10 +126,7 @@ READ-value\nWRITE-target\nQUIT\n\n')
             # notify server to enable connection
             elif msg == CMD_CONNECT:
                 IP_address = raw_input('Enter IP address: ')
-                port_num = getInt(raw_input('Enter port number: '))
-                # check if the user entered the port number in correct format
-                while port_num == False:
-                    port_num = getInt(raw_input('Enter port number: '))
+                port_num = getPortNum()
                 # connnect
                 sock = funcConnect(IP_address, int(port_num))
 
