@@ -92,11 +92,17 @@ def getPortNum():
 def funcAdd():
     data_base.append(db_list()) # append an empty list object into data base
     dev_name = getData() # get the device name from client
-    data_base[num_of_devs - 1].device_name = dev_name # assign atrribute value
+    
+    for i in range (0, len(data_base)): # for loop to find the user defined device
+        if data_base[i].device_name == dev_name:
+            return False
+    
+    #num_of_devs += 1 # add one device
+    data_base[len(data_base) - 1].device_name = dev_name # assign atrribute value
     dev_IP_address = getData()
-    data_base[num_of_devs - 1].IP_address = dev_IP_address
+    data_base[len(data_base) - 1].IP_address = dev_IP_address
     print '\nAdded device:\n'
-    printDevice(data_base, num_of_devs - 1)
+    printDevice(data_base, len(data_base) - 1)
           
     print '\nTotal devices:'
     for j in range (0, len(data_base)):
@@ -112,13 +118,13 @@ def funcRemove():
         if data_base[i].device_name == dev_name:
             print 'Removed device: ' + data_base[i].device_name
             data_base.remove(data_base[i]) # remove
-            break
-    print '\nTotal devices:'
-    for j in range (0, len(data_base)):
-        print '#', j
-        printDevice(data_base, j)
-        
-    return dev_name
+            print '\nTotal devices:'
+            for j in range (0, len(data_base)):
+                print '#', j
+                printDevice(data_base, j)
+            #num_of_devs -= 1 # delete one device
+            return dev_name     
+    return False
 
 # custom function to read the value (Read-value)
 def funcRead():
@@ -156,7 +162,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
 port_num = getPortNum()
-server_address = ('192.168.1.2', port_num)
+server_address = ('172.17.24.240', port_num)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
@@ -176,12 +182,25 @@ while connection_flag: # connection will maintain active unless user quits
             print >>sys.stderr, '\nreceived "%s"' % data
             
             if data == CMD_ADD:
-                num_of_devs += 1 # add one device
-                # send info to client to confirm the device is being added
-                sendData(funcAdd()) 
+               # print num_of_devs
+                info = funcAdd()
+                if info == False:
+                    sendData('ERROR')
+                    #break
+                else:
+                    #print num_of_devs
+                    # send info to client to confirm the device is being added
+                    
+                    sendData(info) 
+                    
             elif data == CMD_REMOVE:
-                sendData(funcRemove())
-                num_of_devs -= 1 # delete one device
+                info = funcRemove()
+                if info == False:
+                    sendData('ERROR')
+                    #break
+                else:                 
+                    sendData(info)
+                    
             elif data == CMD_READ:
                 info = funcRead()
                 # depend on if the user-entered device is found

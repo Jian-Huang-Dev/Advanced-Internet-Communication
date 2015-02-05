@@ -74,21 +74,39 @@ while connection_flag: # connection will maintain active unless user quits
             msg = raw_input('\nEnter Commands:\nCONNECT\nADD\nREMOVE\n\
 READ-value\nWRITE-target\nQUIT\n\n')
             # notify server to add device
-            if msg == CMD_ADD:              
+            if msg == CMD_ADD:
+                if sock == None:
+                    print 'Please enter CONNECT first.'
+                    break              
                 sendData(msg)
                 dev_name =raw_input('Enter device name: ')
                 sendData(dev_name)
                 dev_IP = raw_input('Enter device IP address: ')
                 sendData(dev_IP)
-                print 'Device', getData(), 'added to the data base'
+                info = getData()
+                if info == 'ERROR':
+                    print 'Device already exist'
+                    
+                else:
+                    print 'Device', info, 'added to the data base'
             # notify servr to remove device
             elif msg == CMD_REMOVE:
+                if sock == None:
+                    print 'Please enter CONNECT first.'
+                    break
                 sendData(msg)
                 dev_name = raw_input('Enter device name to remove: ')
                 sendData(dev_name)
-                print 'Device', getData(), 'removed from the data base'
+                info = getData()
+                if info == 'ERROR':
+                    print 'device does not exit'
+                else:
+                    print 'Device', info, 'removed from the data base'
             # notify server to read device value
             elif msg == CMD_READ:
+                if sock == None:
+                    print 'Please enter CONNECT first.'
+                    break
                 sendData(msg)
                 dev_name = raw_input('Enter device name to get value: ')
                 sendData(dev_name)
@@ -100,6 +118,9 @@ READ-value\nWRITE-target\nQUIT\n\n')
                     print 'Device', dev_name,'\'s Read and Target values are: ', info
             # notify server to write target value of a device
             elif msg == CMD_WRITE:
+                if sock == None:
+                    print 'Please enter CONNECT first.'
+                    break
                 sendData(msg)
                 dev_name = raw_input('Enter device name: ')
                 sendData(dev_name)
@@ -113,6 +134,9 @@ READ-value\nWRITE-target\nQUIT\n\n')
                     print 'Device', dev_name,'\'s Target value is changed to: ', info
             # notify server to quit the connection
             elif msg == CMD_QUIT:
+                if sock == None:
+                    print 'Please enter CONNECT first.'
+                    break
                 connection_flag = False
                 # if connection was established, and trying to quit
                 if sock: 
@@ -129,6 +153,8 @@ READ-value\nWRITE-target\nQUIT\n\n')
                 port_num = getPortNum()
                 # connnect
                 sock = funcConnect(IP_address, int(port_num))
+            else:
+                print 'Please enter the correct command'
 
     finally:
          print >>sys.stderr, 'Connection aborting...'
