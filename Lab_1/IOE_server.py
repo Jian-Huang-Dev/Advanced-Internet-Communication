@@ -90,16 +90,17 @@ def getPortNum():
         
 # custom function to add device into data base
 def funcAdd():
-    data_base.append(db_list()) # append an empty list object into data base
-    dev_name = getData() # get the device name from client
-    
-    for i in range (0, len(data_base)): # for loop to find the user defined device
+    # get the device name from client
+    dev_name = getData()
+    dev_IP_address = getData()
+    # check if the device already exist
+    for i in range (0, len(data_base)): 
         if data_base[i].device_name == dev_name:
             return False
+
+    data_base.append(db_list()) # append an empty list object into data base
     
-    #num_of_devs += 1 # add one device
     data_base[len(data_base) - 1].device_name = dev_name # assign atrribute value
-    dev_IP_address = getData()
     data_base[len(data_base) - 1].IP_address = dev_IP_address
     print '\nAdded device:\n'
     printDevice(data_base, len(data_base) - 1)
@@ -162,7 +163,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
 port_num = getPortNum()
-server_address = ('172.17.24.240', port_num)
+server_address = ('192.168.1.5', port_num)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
@@ -186,11 +187,9 @@ while connection_flag: # connection will maintain active unless user quits
                 info = funcAdd()
                 if info == False:
                     sendData('ERROR')
-                    #break
                 else:
                     #print num_of_devs
-                    # send info to client to confirm the device is being added
-                    
+                    # send info to client to confirm the device is being added      
                     sendData(info) 
                     
             elif data == CMD_REMOVE:

@@ -12,7 +12,7 @@ BYTE_LENGH = 32
 ERROR = 'ERROR'
 END_MARKER = '@#' # a random symbol to indicate end of line
 
-connection_flag = True
+connection_flag = False
 
 sock = None #socket
 dev_name = None
@@ -67,17 +67,32 @@ def getInt(string):
         print "Oops!  That was no valid number.  Try again..."
         return False
 
-while connection_flag: # connection will maintain active unless user quits     
+while connection_flag == False: # Will ask usr to perform connection
+    msg = raw_input('\nEnter Commands:\nCONNECT\nQUIT\n\n')
+        
+    # notify server to enable connection
+    if msg == CMD_CONNECT:
+        IP_address = raw_input('Enter IP address: ')
+        port_num = getPortNum()
+        # connnect
+        sock = funcConnect(IP_address, int(port_num))
+        # if connection is established, continue to promote user with commands
+        if sock:
+            connection_flag = True
+    # quit the connection without being connected
+    elif msg == CMD_QUIT:
+        if sock == None:
+            break
+        # disconnect
+        connection_flag = False   
+        
     try:
         while connection_flag: # connection will maintain active unless user quits
             # prmote user to enter commands
-            msg = raw_input('\nEnter Commands:\nCONNECT\nADD\nREMOVE\n\
+            msg = raw_input('\nEnter Commands:\n\nADD\nREMOVE\n\
 READ-value\nWRITE-target\nQUIT\n\n')
             # notify server to add device
-            if msg == CMD_ADD:
-                if sock == None:
-                    print 'Please enter CONNECT first.'
-                    break              
+            if msg == CMD_ADD:             
                 sendData(msg)
                 dev_name =raw_input('Enter device name: ')
                 sendData(dev_name)
@@ -91,9 +106,6 @@ READ-value\nWRITE-target\nQUIT\n\n')
                     print 'Device', info, 'added to the data base'
             # notify servr to remove device
             elif msg == CMD_REMOVE:
-                if sock == None:
-                    print 'Please enter CONNECT first.'
-                    break
                 sendData(msg)
                 dev_name = raw_input('Enter device name to remove: ')
                 sendData(dev_name)
@@ -104,9 +116,6 @@ READ-value\nWRITE-target\nQUIT\n\n')
                     print 'Device', info, 'removed from the data base'
             # notify server to read device value
             elif msg == CMD_READ:
-                if sock == None:
-                    print 'Please enter CONNECT first.'
-                    break
                 sendData(msg)
                 dev_name = raw_input('Enter device name to get value: ')
                 sendData(dev_name)
@@ -118,9 +127,6 @@ READ-value\nWRITE-target\nQUIT\n\n')
                     print 'Device', dev_name,'\'s Read and Target values are: ', info
             # notify server to write target value of a device
             elif msg == CMD_WRITE:
-                if sock == None:
-                    print 'Please enter CONNECT first.'
-                    break
                 sendData(msg)
                 dev_name = raw_input('Enter device name: ')
                 sendData(dev_name)
@@ -134,25 +140,16 @@ READ-value\nWRITE-target\nQUIT\n\n')
                     print 'Device', dev_name,'\'s Target value is changed to: ', info
             # notify server to quit the connection
             elif msg == CMD_QUIT:
-                if sock == None:
-                    print 'Please enter CONNECT first.'
-                    break
                 connection_flag = False
                 # if connection was established, and trying to quit
                 if sock: 
-					sendData(msg)
-					sock.close()
+                    sendData(msg)
+                    sock.close()
                 # else if the connection was not established ...
                 # while trying to quit, then break it
                 else:
-					# do nothing
-					break 
-            # notify server to enable connection
-            elif msg == CMD_CONNECT:
-                IP_address = raw_input('Enter IP address: ')
-                port_num = getPortNum()
-                # connnect
-                sock = funcConnect(IP_address, int(port_num))
+                    # do nothing
+                    break 
             else:
                 print 'Please enter the correct command'
 
