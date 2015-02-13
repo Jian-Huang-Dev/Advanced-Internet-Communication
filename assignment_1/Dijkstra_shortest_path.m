@@ -24,11 +24,7 @@ pass = 1;
 v = src;
 
 while pass < 16
-    
-    fprintf('this is the %g round\n',pass);
-    
-    
-    
+
     for i = 1:N 
           
         
@@ -41,13 +37,9 @@ while pass < 16
         
     end
     
-
     UV(v) = 0;
     pass = pass + 1; 
     v = Find_Closest_Node(UV,D,N);
-    D
-    P
-
     
 end
 
@@ -64,9 +56,7 @@ for u = 1:N
             min_dis = D(u);
             next_node = u;
         end
-        
     end
 end
-
 end
 

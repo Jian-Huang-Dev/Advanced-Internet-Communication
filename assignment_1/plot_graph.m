@@ -8,6 +8,10 @@ for ii=1:N
     y_vector = [y1, y1];
     plot(x_vector, y_vector, 'ok', 'Linewidth', 5)
     hold on;
+    
+    if (1 == 1)
+        text(x1 +0.75, y1 +0.75, sprintf('%g',ii),'FontSize', 16);
+    end;
 end
  
 % draw every edge
