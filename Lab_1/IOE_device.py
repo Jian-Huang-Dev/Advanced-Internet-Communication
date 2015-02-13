@@ -68,7 +68,7 @@ def getInt(string):
         return False
 
 while connection_flag == False: # Will ask usr to perform connection
-    msg = raw_input('\nEnter Commands:\nCONNECT\nQUIT\n\n')
+    msg = raw_input('\nEnter Commands:\nCONNECT\n')
         
     # notify server to enable connection
     if msg == CMD_CONNECT:
@@ -78,14 +78,8 @@ while connection_flag == False: # Will ask usr to perform connection
         sock = funcConnect(IP_address, int(port_num))
         # if connection is established, continue to promote user with commands
         if sock:
-            connection_flag = True
-    # quit the connection without being connected
-    elif msg == CMD_QUIT:
-        if sock == None:
-            break
-        # disconnect
-        connection_flag = False   
-        
+            connection_flag = True   
+       
     try:
         while connection_flag: # connection will maintain active unless user quits
             # prmote user to enter commands

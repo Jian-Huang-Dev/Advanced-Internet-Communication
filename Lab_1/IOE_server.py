@@ -216,7 +216,6 @@ while connection_flag: # connection will maintain active unless user quits
                     sendData(info) 
             elif data == CMD_QUIT:
                 connection_flag = False
-                connection.close()
                 print 'Closed connection'              
             else:
                 print >>sys.stderr, 'no more data from', client_address

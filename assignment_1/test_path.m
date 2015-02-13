@@ -14,7 +14,7 @@ path_delay = 0;
 % path_delay  = sum of the delay on each edge in the path
 % the path is a row vector (1 row with several columns).
 %----------------------------------------------------------------
-for index =1:(c-1)
+for index = 1:(c-1)
      u = path(index);
      v = path(index+1);
 

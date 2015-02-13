@@ -17,9 +17,13 @@ script_SPRINT_TOPOLOGY
 % call a script to plot the graph
 figure(1);
 clf
-set(gca,'FontSize', 15);
-
+set(gca,'FontSize',  15);
+title('Topology graph');
 plot_graph
+
+figure(2)
+bar3(TOP)
+title('Topology Matrix');
 
 % create a lambda and mu matrix with one entry each
 Mu = TOP * 1000;
@@ -29,7 +33,7 @@ path = [1, 2, 6];
 path_delay = test_path(path, 800, Lambda, Mu);
 
 if (path_delay <= 0.05)
-	[path_delay, Lambda] = route_path(path, 800, Lambda, Mu);
+	[path_delay, Lambda] = route_path(path, 800, Lambda, Mu)
 	fprintf('\nRouted flow #1 along path: ');
 	fprintf('%g ', path);  % this statement prints all the nodes onto one line
 	fprintf('\n');               % this statement starts a new line
@@ -45,7 +49,6 @@ if (path_delay <= 0.05)
 	fprintf('%g ', path);  % this statement prints all the nodes onto one line
 	fprintf('\n');               % this statement starts a new line
 end;
-
 
 Delay  = find_network_delay(Lambda, Mu);
 

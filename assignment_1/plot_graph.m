@@ -6,7 +6,7 @@ for ii=1:N
     y1 = LOC(ii,2);
     x_vector = [x1, x1];
     y_vector = [y1, y1];
-    plot(x_vector, y_vector, 'ok', 'Linewidth', 5);
+    plot(x_vector, y_vector, 'ok', 'Linewidth', 5)
     hold on;
 end
  
