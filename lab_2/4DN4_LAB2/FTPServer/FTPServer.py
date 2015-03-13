@@ -9,6 +9,7 @@ import cPickle
 import platform
 import select
 import sys
+import errno
 
 # contants
 CMD_LIST_ALL = 'list'
@@ -221,27 +222,40 @@ def receiveFile(self, file_name, file_size):
     
     # find the right folder that this file belongs to
     folder = checkFileType(file_name)
-    
-    file = open(SERVER_ADDRESS + '\\' + folder + '\\' + file_name, getWriteMode())
+    file_path = SERVER_ADDRESS + '\\' + folder + '\\' + file_name
+    file = open(file_path, getWriteMode())
     
     print 'storing file: %s' %file_name
     
-    sum_bytes = 0
-    while int(sum_bytes) < int(file_size):
-        data = self.request.recv(BYTE_LENGTH)
-        
-        if data:
-            file.write(data)
-            sum_bytes = sum_bytes + len(data)
-            progress = float(sum_bytes)/float(file_size) * 100.
-            sys.stdout.write('Current received file size (byte): %d (expected: %s) - %.2f%% \r'\
-            %(sum_bytes, file_size, progress))
-            sys.stdout.flush()
+    try:
+        sum_bytes = 0
+        while int(sum_bytes) < int(file_size):
+            data = self.request.recv(BYTE_LENGTH)
             
-        else:
-            print 'done receiving file'
-            print 'Total received file size (byte): %d (expected: %s)'\
-            %(sum_bytes, file_size) 
+            if data:
+                file.write(data)
+                sum_bytes = sum_bytes + len(data)
+                progress = float(sum_bytes)/float(file_size) * 100.
+                sys.stdout.write('Current received file size (byte): %d (expected: %s) - %.2f%% \r'\
+                %(sum_bytes, file_size, progress))
+                sys.stdout.flush()
+                
+            else:
+                print 'done receiving file'
+                print 'Total received file size (byte): %d (expected: %s)'\
+                %(sum_bytes, file_size)
+                
+                # once reached 'else' statement, will break the while loop
+                # senerio 1: the file is successfully received at full size
+                # senerio 2: the file is not fully received ...
+                # (user abruptly closed the connection)
+                break
+    
+    except socket.error as error:
+        if error.errno == errno.WSAECONNRESET:
+            # clean up the corrupted file
+            file.close()
+            os.remove(file_path)
             
     # if the file size received correctly
     # operation completes
@@ -256,6 +270,9 @@ def receiveFile(self, file_name, file_size):
     else:
         # operation imcomplete
         file.close()
+        # clean up the corrupted file
+        os.remove(file_path)
+        
         print '\n' + OPERATION_IMCOMPLETE
 
 # send file to client side
@@ -320,6 +337,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     data = CMD_QUIT
                     
                 else:
+                    # return to the start of this while loop
                     data = None
        
                 if data == CMD_LIST_ALL:
