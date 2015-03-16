@@ -251,11 +251,19 @@ def receiveFile(self, file_name, file_size):
                 # (user abruptly closed the connection)
                 break
     
+    # in case the connection is lost 
+    #(i.e user close the console window)
     except socket.error as error:
         if error.errno == errno.WSAECONNRESET:
             # clean up the corrupted file
             file.close()
             os.remove(file_path)
+            
+    except KeyboardInterrupt:
+        print 'User pressed (CTRL-C ) to shut down client'
+        # clean up the corrupted file
+        file.close()
+        os.remove(file_path)
             
     # if the file size received correctly
     # operation completes
